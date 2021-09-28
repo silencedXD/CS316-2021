@@ -14,7 +14,11 @@ import Week02
       element in list: -}
 
 popCount :: Eq a => a -> [a] -> Int
-popCount = undefined
+popCount x [] = 0
+popCount x (y:ys)
+      | x == y    = 1 + popCount x ys
+      | otherwise = 0 + popCount x ys
+
 
 {-    (popCount is short for "population count"). Examples:
 
@@ -32,7 +36,12 @@ popCount = undefined
 -}
 
 insertNoDup :: Ord a => a -> [a] -> [a]
-insertNoDup = undefined
+insertNoDup x []     = [x]
+insertNoDup x (y:ys) = 
+      case compare x y of
+      EQ -> y:ys
+      LT -> x:y:ys
+      GT -> y:insertNoDup x ys
 
 
 {- 3. Write a version of 'remove' that removes all copies of an element
@@ -43,17 +52,30 @@ insertNoDup = undefined
 -}
 
 removeAll :: Ord a => a -> [a] -> [a]
-removeAll = undefined
+removeAll x [] = []
+removeAll x (y:ys) 
+      | x == y    = removeAll x ys
+      | otherwise = y : removeAll x ys
 
 
 {- 4. Rewrite 'treeFind' and 'treeInsert' to use 'compare' and 'case'
       expressions. -}
 
 treeFind2 :: Ord k => k -> KV k v -> Maybe v
-treeFind2 = undefined
+treeFind2 k leaf                = Nothing
+treeFind2 k (Node l (k', v') r) =
+      case compare k k' of
+            EQ -> Just v'
+            LT -> treeFind2 k l
+            GT -> treeFind2 k r      
 
 treeInsert2 :: Ord k => k -> v -> KV k v -> KV k v
-treeInsert2 = undefined
+treeInsert2 k v Leaf             = Node Leaf (k, v) Leaf
+treeInsert2 k v (Node l (k',v') r) =
+      case compare k k' of
+            EQ -> Node l (k,v) r
+            LT -> Node (treeInsert2 k v l) (k',v') r
+            GT -> Node l (k',v') (treeInsert2 k v r)
 
 
 {- 5. MergeSort is another sorting algorithm that works in the following
@@ -79,7 +101,10 @@ treeInsert2 = undefined
       'where' clause. -}
 
 split :: [a] -> ([a], [a])
-split = undefined
+split [] = ([],[]) 
+split (x:y:xs) = (odds,evens)
+      where odds  = [ z | z <- xs, odd x ]
+            evens = [ z | z <- xs, even x]
 
 {-    'merge' merges two sorted lists into one sorted list. Examples:
 
