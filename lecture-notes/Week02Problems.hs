@@ -102,9 +102,10 @@ treeInsert2 k v (Node l (k',v') r) =
 
 split :: [a] -> ([a], [a])
 split [] = ([],[]) 
-split (x:y:xs) = (odds,evens)
-      where odds  = [ z | z <- xs, odd x ]
-            evens = [ z | z <- xs, even x]
+split [x] = ([x],[])
+split (x1:x2:xs) = (odds,evens)
+      where odds  = x1:fst(split xs)
+            evens = x2:snd(split xs)
 
 {-    'merge' merges two sorted lists into one sorted list. Examples:
 
@@ -113,20 +114,51 @@ split (x:y:xs) = (odds,evens)
 -}
 
 merge :: Ord a => [a] -> [a] -> [a]
-merge = undefined
+merge [] [] = []
+merge [x] [] = [x]
+merge [] (x:xs) = x:xs
+merge (x1:x2:xs) [] = x1:x2:xs
+merge [x] [y] = case compare x y of
+      EQ -> [x]++[y]
+      LT -> [x]++[y]
+      GT -> [y]++[x]
+merge (x:xs) (y:ys) = case compare x y of
+      EQ -> x:y:merge xs ys
+      LT -> x:merge xs (y:ys)
+      GT -> y:merge (x:xs) ys
+
+
+
 
 {-    'mergeSort' uses 'split' and 'merge' to implement the merge sort
       algorithm described above. -}
 
 mergeSort :: Ord a => [a] -> [a]
-mergeSort = undefined
-
+mergeSort [] = []
+mergeSort [x] = [x]
+mergeSort xs = merge (mergeSort x1) (mergeSort x2)
+      where
+            (x1, x2) = split xs
 
 {- 6. Write another version of 'makeChange' that returns all the
       possible ways of making change as a list: -}
 
 makeChangeAll :: [Coin] -> [Coin] -> Int -> [[Coin]]
-makeChangeAll = undefined
+makeChangeAll xs ys amount = [zs:z]
+      where z = makeChange xs ys amount
+
+{-
+makeChange :: [Coin] -> [Coin] -> Int -> Maybe [Coin]
+makeChange coins        used 0 = Just used
+makeChange []           used _ = Nothing
+makeChange (coin:coins) used amount
+  | amount >= coin =
+    case makeChange coins (coin:used) (amount - coin) of
+      Just coins -> Just coins
+      Nothing    -> makeChange coins used amount
+  | otherwise =
+    makeChange coins used amount
+-}
 
 {- HINT: you don't need a case expression, just a way of appending two
    lists of possibilities. -}
